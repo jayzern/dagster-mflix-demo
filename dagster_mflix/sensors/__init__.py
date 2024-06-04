@@ -6,7 +6,6 @@ from dagster import (
 
 import os
 import json
-
 from ..jobs import adhoc_job
 
 @sensor(
@@ -32,10 +31,10 @@ def adhoc_sensor(context):
                 with open(file_path, "r") as f:
                     request_config = json.load(f)
                     runs_to_request.append(RunRequest(
-                        run_key=f"adhoc_movie_embeddings_{filename}_{last_modified}",
+                        run_key=f"movie_embeddings_{filename}_{last_modified}",
                         run_config={
                             "ops": {
-                                "adhoc_movie_embeddings": {
+                                "movie_embeddings": {
                                     "config": {
                                         "filename": filename,
                                         **request_config

@@ -1,6 +1,7 @@
 from dagster import AssetSelection, define_asset_job
 from ..partitions import monthly_partition
 
+
 movies_job = define_asset_job(
     name="movies_job",
     partitions_def=monthly_partition,
@@ -9,5 +10,5 @@ movies_job = define_asset_job(
 
 adhoc_job = define_asset_job(
     name="adhoc_job",
-    selection=AssetSelection.assets(["adhoc_movie_embeddings"])
+    selection=AssetSelection.assets(["movie_embeddings"])
 )

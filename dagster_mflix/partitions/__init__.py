@@ -1,9 +1,10 @@
 from dagster import MonthlyPartitionsDefinition
 
-start_date = '2011-01-01'
-end_date = '2016-01-01'
+
+START_DATE = '2011-01-01'
+END_DATE = '2016-01-01'
 
 monthly_partition = MonthlyPartitionsDefinition(
-    start_date=start_date,
-    end_date=end_date
+    start_date=START_DATE,
+    end_date=END_DATE
 )

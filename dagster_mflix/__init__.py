@@ -12,7 +12,7 @@ movies_assets = load_assets_from_modules([movies], group_name="movies")
 adhoc_assets = load_assets_from_modules([adhoc], group_name="ad_hoc")
 
 defs = Definitions(
-    assets=[*mongodb_assets, *movies_assets, *adhoc_assets], # The * means import everything
+    assets=[*mongodb_assets, *movies_assets, *adhoc_assets],
     resources={
         "dlt": dlt_resource,
         "snowflake": snowflake_resource

@@ -5,15 +5,24 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from sklearn.manifold import TSNE
 
+
 class AdhocConfig(Config):
     filename: str
     ratings: str
 
+
+def _parse_embedding(embedding_str):
+    cleaned_str = embedding_str.replace(' ', '').replace('\n', '').replace('[', '').replace(']', '')
+    return list(eval(cleaned_str))
+
+
 @asset(
     deps=["dlt_mongodb_embedded_movies"]
 )
-def adhoc_movie_embeddings(config: AdhocConfig, snowflake: SnowflakeResource):
-
+def movie_embeddings(config: AdhocConfig, snowflake: SnowflakeResource):
+    """
+    Generate movie embedding plots using t-NSE algorithm, based on movie ratings
+    """
     query = f"""
         select
             movies.title,
@@ -31,28 +40,23 @@ def adhoc_movie_embeddings(config: AdhocConfig, snowflake: SnowflakeResource):
         cursor.execute(query)
         df = cursor.fetch_pandas_all()
 
-    def parse_embedding(embedding_str):
-        cleaned_str = embedding_str.replace(' ', '').replace('\n', '').replace('[', '').replace(']', '')
-        return list(eval(cleaned_str))
+    # Unwrap movie embeddings, fill NA values with zero
+    X = df['PLOT_EMBEDDINGS'].apply(_parse_embedding).apply(pd.Series).fillna(0)
 
-    X = df['PLOT_EMBEDDINGS'].apply(parse_embedding).apply(pd.Series).fillna(0)
-
+    # Generate embeddings
     embs = TSNE(
-            n_components=2,
-            learning_rate='auto',
-            init='random',
-            perplexity=3
-        ).fit_transform(X)
+        n_components=2,
+        learning_rate='auto',
+        init='random',
+        perplexity=3
+    ).fit_transform(X)
 
+    # Scatter plot
     df['x'] = embs[:, 0]
     df['y'] = embs[:, 1]
 
-    fig, ax = plt.subplots(figsize=(10, 8))
+    _, ax = plt.subplots(figsize=(10, 8))
     ax.scatter(df['x'], df['y'], alpha=.1)
     for idx, title in enumerate(df['TITLE']):
         ax.annotate(title, (df['x'][idx], df['y'][idx]))
     plt.savefig('data/tnse_visualizations.png')
-
-
-
-

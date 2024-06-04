@@ -10,6 +10,9 @@ import matplotlib.pyplot as plt
     deps=["dlt_mongodb_comments", "dlt_mongodb_embedded_movies"]
 )
 def user_engagement(snowflake: SnowflakeResource) -> None:
+    """
+    Movie titles and the number of user engagement (i.e. comments)
+    """
     query = """
         select
             movies.title,
@@ -32,7 +35,10 @@ def user_engagement(snowflake: SnowflakeResource) -> None:
     deps=["dlt_mongodb_embedded_movies"],
     partitions_def=monthly_partition
 )
-def movies_by_month(context, snowflake: SnowflakeResource) -> None:
+def top_movies_by_month(context, snowflake: SnowflakeResource) -> None:
+    """
+    Top movie genres based on IMBD ratings, partitioned by month
+    """
     partition_date = context.partition_key
 
     query = f"""
@@ -61,8 +67,6 @@ def movies_by_month(context, snowflake: SnowflakeResource) -> None:
     _selected = _selected.dropna()
     movies_df = movies_df.loc[_selected]
 
-    # At this point you can ingest it back to Snowflake using S3/Snowpipe
-    # or use the write_pandas function. Keep it simple here and store as CSV
     try:
         existing = pd.read_csv('top_movies_by_month.csv')
         existing = existing[existing['partition_date'] != partition_date]
@@ -75,21 +79,23 @@ def movies_by_month(context, snowflake: SnowflakeResource) -> None:
 @asset(
     deps=["user_engagement"]
 )
-def top_movie_engagement():
+def top_movies_by_engagement():
+    """
+    Generate a bar chart based on top 10 movies by engagement
+    """
     movie_engagement = pd.read_csv('movie_engagement.csv')
     top_10_movies = movie_engagement.sort_values(by='NUMBER_OF_COMMENTS', ascending=False).head(10)
 
     plt.figure(figsize=(10, 8))
     bars = plt.barh(top_10_movies['TITLE'], top_10_movies['NUMBER_OF_COMMENTS'], color='skyblue')
-    
+
     # Add year_released as text labels
     for bar, year in zip(bars, top_10_movies['YEAR_RELEASED'].astype(int)):
-        plt.text(bar.get_width() + 5, bar.get_y() + bar.get_height() / 2, f'{year}', 
+        plt.text(bar.get_width() + 5, bar.get_y() + bar.get_height() / 2, f'{year}',
                  va='center', ha='left', color='black')
-    
+
     plt.xlabel('Engagement (comments)')
     plt.ylabel('Movie Title')
     plt.title('Top Movie Engagement with Year Released')
     plt.gca().invert_yaxis()
-
     plt.savefig('data/top_movie_engagement.png')
