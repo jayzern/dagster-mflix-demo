@@ -29,9 +29,6 @@ def user_engagement(snowflake: SnowflakeResource) -> None:
         cursor.execute(query)
         engagement_df = cursor.fetch_pandas_all()
 
-    if not os.path.exists('data'):
-        os.mkdir('data')
-
     engagement_df.to_csv('data/movie_engagement.csv', index=False)
 
 
@@ -70,9 +67,6 @@ def top_movies_by_month(context, snowflake: SnowflakeResource) -> None:
     # Drop the NA values
     _selected = _selected.dropna()
     movies_df = movies_df.loc[_selected]
-
-    if not os.path.exists('data'):
-        os.mkdir('data')
 
     try:
         existing = pd.read_csv('data/top_movies_by_month.csv')
