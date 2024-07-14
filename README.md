@@ -1,4 +1,4 @@
-# Dagster Mflix 
+# Dagster Netflix Project
 
 This repository contains a demo ELT project created using Dagster, covering features including:
 
