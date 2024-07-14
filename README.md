@@ -1,5 +1,26 @@
 # Dagster Netflix Project
 
+<div align="center">
+  <a target="_blank" style="background:none">
+    <img src="https://img.shields.io/pypi/pyversions/dagster?labelColor=4F43DD&color=163B36">
+  </a>
+  <a target="_blank">
+    <img src="https://img.shields.io/badge/dagster-orchestration-blue?labelColor=4F43DD&color=163B36" />
+  </a>
+  <a target="_blank">
+    <img src="https://img.shields.io/badge/dlt-ingestion-blue?labelColor=4F43DD&color=163B36" />
+  </a>
+  <a target="_blank">
+    <img src="https://img.shields.io/badge/snowflake-storage-blue?labelColor=4F43DD&color=163B36" />
+  </a>
+</div>
+
+<div align="center">
+  <a target="_blank" href="https://dlthub.com/community" style="background:none">
+    <img src="https://img.shields.io/badge/slack-join-dlt.svg?labelColor=191937&color=6F6FF7&logo=slack" style="width: 260px;"  />
+  </a>
+</div>
+
 This repository contains a demo ELT project created using Dagster, covering features including:
 
 1. Asset based, declarative orchestration
