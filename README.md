@@ -1,4 +1,4 @@
-# Dagster Netflix Project
+# Dagster Mflix Project
 
 <div align="center">
   <a target="_blank" style="background:none">
