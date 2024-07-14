@@ -176,3 +176,6 @@ scripts/.build
 
 # dbt .user files
 .user.yml
+
+# dagster
+tmp*

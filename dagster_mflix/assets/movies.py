@@ -1,7 +1,8 @@
 from dagster_snowflake import SnowflakeResource
-from dagster import asset
+from dagster import asset, AutoMaterializePolicy
 from ..partitions import monthly_partition
 
+import os
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -27,6 +28,9 @@ def user_engagement(snowflake: SnowflakeResource) -> None:
         cursor = conn.cursor()
         cursor.execute(query)
         engagement_df = cursor.fetch_pandas_all()
+
+    if not os.path.exists('data'):
+        os.mkdir('data')
 
     engagement_df.to_csv('data/movie_engagement.csv', index=False)
 
@@ -67,8 +71,11 @@ def top_movies_by_month(context, snowflake: SnowflakeResource) -> None:
     _selected = _selected.dropna()
     movies_df = movies_df.loc[_selected]
 
+    if not os.path.exists('data'):
+        os.mkdir('data')
+
     try:
-        existing = pd.read_csv('top_movies_by_month.csv')
+        existing = pd.read_csv('data/top_movies_by_month.csv')
         existing = existing[existing['partition_date'] != partition_date]
         existing = pd.concat([existing, movies_df]).sort_values(by="partition_date")
         existing.to_csv('data/top_movies_by_month.csv', index=False)
@@ -77,13 +84,14 @@ def top_movies_by_month(context, snowflake: SnowflakeResource) -> None:
 
 
 @asset(
-    deps=["user_engagement"]
+    deps=["user_engagement"],
+    auto_materialize_policy=AutoMaterializePolicy.eager()
 )
 def top_movies_by_engagement():
     """
     Generate a bar chart based on top 10 movies by engagement
     """
-    movie_engagement = pd.read_csv('movie_engagement.csv')
+    movie_engagement = pd.read_csv('data/movie_engagement.csv')
     top_10_movies = movie_engagement.sort_values(by='NUMBER_OF_COMMENTS', ascending=False).head(10)
 
     plt.figure(figsize=(10, 8))
