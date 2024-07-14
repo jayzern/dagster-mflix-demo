@@ -15,11 +15,6 @@
   </a>
 </div>
 
-<div align="center">
-  <a target="_blank" href="https://dlthub.com/community" style="background:none">
-    <img src="https://img.shields.io/badge/slack-join-dlt.svg?labelColor=191937&color=6F6FF7&logo=slack" style="width: 260px;"  />
-  </a>
-</div>
 
 This repository contains a demo ELT project created using Dagster, covering features including:
 
