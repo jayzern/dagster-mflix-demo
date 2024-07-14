@@ -1,11 +1,24 @@
-# dagster_mflix
+# Dagster Mflix 
 
-This is a [Dagster](https://dagster.io/) project scaffolded with [`dagster project scaffold`](https://docs.dagster.io/getting-started/create-new-project).
+This repository contains a demo ELT project created using Dagster, covering features including:
 
-## Getting started
+1. Asset based, declarative orchestration
+2. Embedded ELT using data load tool
+3. How to backfill DAGs using Partitions
+4. How to setup Schedules and Jobs
+5. Experimental features: Sensors and Auto Materialization policies
 
-First, install your Dagster code location as a Python package. By using the --editable flag, pip will install your Python package in ["editable mode"](https://pip.pypa.io/en/latest/topics/local-project-installs/#editable-installs) so that as you develop, local code changes will automatically apply.
+## Installation
 
+Create a virtual environment. Install dagster core and dagster embedded ELT.
+
+```bash
+conda create -n "dagster-mflix" python=3.11.8
+conda activate dagster-mflix
+pip install dagster==1.7.7 dagster-embedded-elt==0.23.7
+```
+
+Install required dependencies based on `setup.py`. Use `--editable` flag so code changes are reflected, and use `[dev]` target here.
 ```bash
 pip install -e ".[dev]"
 ```
@@ -18,30 +31,53 @@ dagster dev
 
 Open http://localhost:3000 with your browser to see the project.
 
-You can start writing assets in `dagster_mflix/assets.py`. The assets are automatically loaded into the Dagster code location as you define them.
+## System Architecture
 
-## Development
+At a high level we're building an ELT pipeline that ingests data from a source database (OLTP) to a data warehouse (OLAP).
 
-### Adding new Python dependencies
+Dagster is our orchestrator used to generate [Assets](https://docs.dagster.io/concepts/assets/software-defined-assets), which are objects in persistant storage that capture some understanding of this world.
 
-You can specify new Python dependencies in `setup.py`.
+For our dataset, we will be using the [Mflix dataset](https://www.mongodb.com/docs/atlas/sample-data/sample-mflix) provided by MongoDB in order to generate insights about movies and user engagement scores.
 
-### Unit testing
+![img/system-architecture.png](img/system-architecture.png)
 
-Tests are in the `dagster_mflix_tests` directory and you can run tests using `pytest`:
+## Configure Snowflake and MongoDB
 
-```bash
-pytest dagster_mflix_tests
+Sign up for MongoDB Atlas and load the sample Mflix dataset: https://www.mongodb.com/docs/atlas/sample-data/#std-label-load-sample-data
+
+![img/mongodb.png](img/mongodb.png)
+
+Sign up for Snowflake. Create relevant warehouse, database and role in the Snowflake UI.
+```sql
+use role accountadmin;
+
+drop database dagster_db;
+
+create warehouse if not exists dagster_wh with warehouse_size='x-small';
+create database if not exists dagster_db;
+create role if not exists dagster_role;
+
+use role dagster_role;
+
+grant usage on warehouse dagster_wh to role dagster_role;
+grant role dagster_role to user jayzern;
+grant all on database dagster_db to role dagster_role;
 ```
 
-### Schedules and sensors
+![img/snowflake2.png](img/snowflake2.png)
 
-If you want to enable Dagster [Schedules](https://docs.dagster.io/concepts/partitions-schedules-sensors/schedules) or [Sensors](https://docs.dagster.io/concepts/partitions-schedules-sensors/sensors) for your jobs, the [Dagster Daemon](https://docs.dagster.io/deployment/dagster-daemon) process must be running. This is done automatically when you run `dagster dev`.
+Finally, copy paste the contents of `template.env` into `.env` and replace the credentials with your own. Export your snowflake auth details using environment variables, i.e. `export snowflake_user=myuser`
 
-Once your Dagster Daemon is running, you can start turning on schedules and sensors for your jobs.
+```
+SOURCES__MONGODB__MONGODB__CONNECTION_URL="mongodb+srv://<user>:<password>@cluster0"
+DESTINATION__SNOWFLAKE__CREDENTIALS__DATABASE="dagster_db"
+DESTINATION__SNOWFLAKE__CREDENTIALS__PASSWORD=${snowflake_password}
+DESTINATION__SNOWFLAKE__CREDENTIALS__USERNAME=${snowflake_user}
+DESTINATION__SNOWFLAKE__CREDENTIALS__HOST=${snowflake_account}
+DESTINATION__SNOWFLAKE__CREDENTIALS__WAREHOUSE="dagster_wh"
+DESTINATION__SNOWFLAKE__CREDENTIALS__ROLE="dagster_role"
 
-## Deploy on Dagster Cloud
-
-The easiest way to deploy your Dagster project is to use Dagster Cloud.
-
-Check out the [Dagster Cloud Documentation](https://docs.dagster.cloud) to learn more.
+SNOWFLAKE_ACCOUNT=${snowflake_account}
+SNOWFLAKE_USER=${snowflake_user}
+SNOWFLAKE_PASSWORD=${snowflake_password}
+```
