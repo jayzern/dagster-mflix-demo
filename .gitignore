@@ -135,7 +135,7 @@ docs/gatsby/**/public
 docs/next/.mdx-data
 docs/next/public/sitemap.xml
 # Data
-data
+# data
 # Don't ignore data folders in examples
 !examples/*/data
 !examples/**/**/data
