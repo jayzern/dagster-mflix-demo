@@ -15,8 +15,7 @@
   </a>
 </div>
 
-
-This repository contains a demo ELT project created using Dagster, covering features including:
+This repository contains a demo ELT project created using Dagster and the Mflix dataset, covering features including:
 
 1. Asset based, declarative orchestration
 2. Embedded ELT using data load tool
