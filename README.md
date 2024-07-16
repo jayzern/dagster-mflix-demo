@@ -1,4 +1,4 @@
-# Dagster Mflix Project
+# Dagster Mflix Demo
 
 <div align="center">
   <a target="_blank" style="background:none">
