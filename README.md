@@ -66,13 +66,9 @@ Sign up for Snowflake. Create relevant warehouse, database and role in the Snowf
 ```sql
 use role accountadmin;
 
-drop database dagster_db;
-
 create warehouse if not exists dagster_wh with warehouse_size='x-small';
 create database if not exists dagster_db;
 create role if not exists dagster_role;
-
-use role dagster_role;
 
 grant usage on warehouse dagster_wh to role dagster_role;
 grant role dagster_role to user jayzern;
